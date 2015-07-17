@@ -16,6 +16,7 @@
 
 package com.google.gson;
 
+import com.google.gson.JsonParseException;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
@@ -55,7 +56,13 @@ final class TreeTypeAdapter<T> extends TypeAdapter<T> {
     if (value.isJsonNull()) {
       return null;
     }
-    return deserializer.deserialize(value, typeToken.getType(), gson.deserializationContext);
+    try {
+      return deserializer.deserialize(value, typeToken.getType(), gson.deserializationContext);
+    } catch (JsonParseException jpe) {
+      throw jpe;
+    } catch (Throwable t) {
+      throw new JsonParseException(t);
+    }
   }
 
   @Override public void write(JsonWriter out, T value) throws IOException {
